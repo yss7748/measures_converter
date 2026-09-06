@@ -5,7 +5,7 @@ import xml.sax.saxutils as saxutils
 def escape(text):
     return saxutils.escape(text)
 
-def create_docx(filename, image_path, main_dart_path, pubspec_path, android_manifest_path):
+def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path, pubspec_path, android_manifest_path):
     # Read files
     with open(main_dart_path, 'r', encoding='utf-8') as f:
         main_dart_content = f.read()
@@ -16,8 +16,14 @@ def create_docx(filename, image_path, main_dart_path, pubspec_path, android_mani
     with open(android_manifest_path, 'r', encoding='utf-8') as f:
         android_manifest_content = f.read()
 
-    with open(image_path, 'rb') as f:
-        image_bytes = f.read()
+    with open(image1_path, 'rb') as f:
+        image1_bytes = f.read()
+
+    with open(image2_path, 'rb') as f:
+        image2_bytes = f.read()
+
+    with open(image3_path, 'rb') as f:
+        image3_bytes = f.read()
 
     content_types_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -36,7 +42,9 @@ def create_docx(filename, image_path, main_dart_path, pubspec_path, android_mani
 
     doc_rels_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rIdImage1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot.jpg"/>
+    <Relationship Id="rIdImage1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot1.jpg"/>
+    <Relationship Id="rIdImage2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot2.jpg"/>
+    <Relationship Id="rIdImage3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot3.jpg"/>
 </Relationships>'''
 
     def make_heading(text, level=1):
@@ -101,18 +109,18 @@ def create_docx(filename, image_path, main_dart_path, pubspec_path, android_mani
             </w:p>''')
         return '\n'.join(xml_runs)
 
-    # 3.2 inches wide by 5.7 inches tall (approx 2926080 x 5212080 EMUs)
-    image_drawing_xml = '''<w:p>
+    def make_image_xml(rel_id, doc_id, descr):
+        return f'''<w:p>
         <w:pPr>
             <w:jc w:val="center"/>
-            <w:spacing w:before="120" w:after="240"/>
+            <w:spacing w:before="120" w:after="160"/>
         </w:pPr>
         <w:r>
             <w:drawing>
                 <wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
                     <wp:extent cx="2926080" cy="5212080"/>
                     <wp:effectExtent l="0" t="0" r="0" b="0"/>
-                    <wp:docPr id="1" name="Picture 1" descr="Measures Converter Output Screenshot"/>
+                    <wp:docPr id="{doc_id}" name="Picture {doc_id}" descr="{descr}"/>
                     <wp:cNvGraphicFramePr>
                         <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
                     </wp:cNvGraphicFramePr>
@@ -120,11 +128,11 @@ def create_docx(filename, image_path, main_dart_path, pubspec_path, android_mani
                         <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
                             <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
                                 <pic:nvPicPr>
-                                    <pic:cNvPr id="0" name="Picture 1"/>
+                                    <pic:cNvPr id="0" name="Picture {doc_id}"/>
                                     <pic:cNvPicPr/>
                                 </pic:nvPicPr>
                                 <pic:blipFill>
-                                    <a:blip r:embed="rIdImage1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
+                                    <a:blip r:embed="{rel_id}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
                                     <a:stretch>
                                         <a:fillRect/>
                                     </a:stretch>
@@ -164,10 +172,20 @@ def create_docx(filename, image_path, main_dart_path, pubspec_path, android_mani
         make_para("Technology Stack: Flutter SDK (v3.x) & Dart SDK (v3.x)"),
         make_para("This project implements a multiplatform mobile converter application conforming to clean architecture and Effective Dart conventions. Users can enter numeric values and convert seamlessly across metric and imperial systems for distance and mass units."),
 
-        make_heading("2. Application Output Screenshot", level=2),
-        make_para("Figure 1 below displays the live application output verifying the calculation: '100.0 meters are 328.084 feet'. The layout faithfully reflects the assignment specification with a centered Material 3 blue AppBar, numeric TextField, dropdown pickers for source and target units, elevated Convert button, and formatted result text."),
-        image_drawing_xml,
-        make_para("Figure 1: Flutter Measures Converter Live Application Output (100.0 meters are 328.084 feet)", italic=True, color="555555"),
+        make_heading("2. Application Output Screenshots", level=2),
+        make_para("Below are the verified live application output runs covering all cases specified in the assignment tasks:"),
+
+        make_para("Case 1: Primary Mockup Verification (100.0 meters are 328.084 feet)", bold=True, color="1F4E79"),
+        make_image_xml("rIdImage1", 1, "Meters to Feet Output Screenshot"),
+        make_para("Figure 1: Flutter Measures Converter Output (100.0 meters are 328.084 feet)", italic=True, color="555555"),
+
+        make_para("Case 2: Metric to Imperial Distance (10.0 miles are 16.093 kilometers)", bold=True, color="1F4E79"),
+        make_image_xml("rIdImage2", 2, "Miles to Kilometers Output Screenshot"),
+        make_para("Figure 2: Flutter Measures Converter Output (10.0 miles are 16.093 kilometers)", italic=True, color="555555"),
+
+        make_para("Case 3: Metric to Imperial Mass (5.0 kilograms are 11.023 pounds)", bold=True, color="1F4E79"),
+        make_image_xml("rIdImage3", 3, "Kilograms to Pounds Output Screenshot"),
+        make_para("Figure 3: Flutter Measures Converter Output (5.0 kilograms are 11.023 pounds)", italic=True, color="555555"),
 
         make_heading("3. Design Decisions & Error Handling", level=2),
         make_para("• Base-Unit Normalization: Each category normalizes measurements to an international base unit (meters for distance, kilograms for mass), ensuring O(1) mathematical accuracy without roundoff accumulation."),
@@ -208,14 +226,18 @@ def create_docx(filename, image_path, main_dart_path, pubspec_path, android_mani
         docx.writestr('_rels/.rels', rels_xml)
         docx.writestr('word/_rels/document.xml.rels', doc_rels_xml)
         docx.writestr('word/document.xml', doc_xml)
-        docx.writestr('word/media/screenshot.jpg', image_bytes)
+        docx.writestr('word/media/screenshot1.jpg', image1_bytes)
+        docx.writestr('word/media/screenshot2.jpg', image2_bytes)
+        docx.writestr('word/media/screenshot3.jpg', image3_bytes)
 
-    print(f"Successfully generated Word document at {filename}")
+    print(f"Successfully generated Word document with all screenshots at {filename}")
 
 if __name__ == "__main__":
     create_docx(
         filename="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/Hands_on_Assignment_1_Measures_Converter.docx",
-        image_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/brain/ff419b37-f306-4cae-a2e7-b504c188f7fb/measures_converter_output_1788676197355.jpg",
+        image1_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_meters_to_feet.jpg",
+        image2_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_miles_to_km.jpg",
+        image3_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_kg_to_lbs.jpg",
         main_dart_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/lib/main.dart",
         pubspec_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/pubspec.yaml",
         android_manifest_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/android/app/src/main/AndroidManifest.xml"
