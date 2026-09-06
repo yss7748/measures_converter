@@ -160,7 +160,7 @@ def create_docx(filename, image_path, main_dart_path, pubspec_path, android_mani
 
         make_heading("1. Project Overview & Repository Information", level=2),
         make_para("Application Name: Measures Converter"),
-        make_para("GitHub Repository URL: https://github.com/saisahishnuyerraguravagari/measures_converter", bold=True, color="2E75B6"),
+        make_para("GitHub Repository URL: https://github.com/yss7748/measures_converter", bold=True, color="2E75B6"),
         make_para("Technology Stack: Flutter SDK (v3.x) & Dart SDK (v3.x)"),
         make_para("This project implements a multiplatform mobile converter application conforming to clean architecture and Effective Dart conventions. Users can enter numeric values and convert seamlessly across metric and imperial systems for distance and mass units."),
 
