@@ -5,7 +5,7 @@ import xml.sax.saxutils as saxutils
 def escape(text):
     return saxutils.escape(text)
 
-def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path, pubspec_path, android_manifest_path):
+def create_docx(filename, img_miles_path, img_kg_path, img_feet_path, img_menu_path, main_dart_path, pubspec_path, android_manifest_path):
     # Read files
     with open(main_dart_path, 'r', encoding='utf-8') as f:
         main_dart_content = f.read()
@@ -16,22 +16,24 @@ def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path,
     with open(android_manifest_path, 'r', encoding='utf-8') as f:
         android_manifest_content = f.read()
 
-    with open(image1_path, 'rb') as f:
-        image1_bytes = f.read()
+    with open(img_miles_path, 'rb') as f:
+        img_miles_bytes = f.read()
 
-    with open(image2_path, 'rb') as f:
-        image2_bytes = f.read()
+    with open(img_kg_path, 'rb') as f:
+        img_kg_bytes = f.read()
 
-    with open(image3_path, 'rb') as f:
-        image3_bytes = f.read()
+    with open(img_feet_path, 'rb') as f:
+        img_feet_bytes = f.read()
+
+    with open(img_menu_path, 'rb') as f:
+        img_menu_bytes = f.read()
 
     content_types_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
     <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
     <Default Extension="xml" ContentType="application/xml"/>
-    <Default Extension="jpg" ContentType="image/jpeg"/>
-    <Default Extension="jpeg" ContentType="image/jpeg"/>
     <Default Extension="png" ContentType="image/png"/>
+    <Default Extension="jpg" ContentType="image/jpeg"/>
     <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
 </Types>'''
 
@@ -42,9 +44,10 @@ def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path,
 
     doc_rels_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rIdImage1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot1.jpg"/>
-    <Relationship Id="rIdImage2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot2.jpg"/>
-    <Relationship Id="rIdImage3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot3.jpg"/>
+    <Relationship Id="rIdImgMiles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot_miles_to_km.png"/>
+    <Relationship Id="rIdImgKg" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot_kg_to_pounds.png"/>
+    <Relationship Id="rIdImgFeet" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot_feet_to_meters.png"/>
+    <Relationship Id="rIdImgMenu" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/screenshot_dropdown_menu.png"/>
 </Relationships>'''
 
     def make_heading(text, level=1):
@@ -110,6 +113,7 @@ def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path,
         return '\n'.join(xml_runs)
 
     def make_image_xml(rel_id, doc_id, descr):
+        # Width: 2.5 inches (2286000 EMUs), Height: 5.565 inches (5088835 EMUs)
         return f'''<w:p>
         <w:pPr>
             <w:jc w:val="center"/>
@@ -118,7 +122,7 @@ def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path,
         <w:r>
             <w:drawing>
                 <wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
-                    <wp:extent cx="2926080" cy="5212080"/>
+                    <wp:extent cx="2286000" cy="5088835"/>
                     <wp:effectExtent l="0" t="0" r="0" b="0"/>
                     <wp:docPr id="{doc_id}" name="Picture {doc_id}" descr="{descr}"/>
                     <wp:cNvGraphicFramePr>
@@ -140,7 +144,7 @@ def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path,
                                 <pic:spPr>
                                     <a:xfrm>
                                         <a:off x="0" y="0"/>
-                                        <a:ext cx="2926080" cy="5212080"/>
+                                        <a:ext cx="2286000" cy="5088835"/>
                                     </a:xfrm>
                                     <a:prstGeom prst="rect">
                                         <a:avLst/>
@@ -169,23 +173,31 @@ def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path,
         make_heading("1. Project Overview & Repository Information", level=2),
         make_para("Application Name: Measures Converter"),
         make_para("GitHub Repository URL: https://github.com/yss7748/measures_converter", bold=True, color="2E75B6"),
-        make_para("Technology Stack: Flutter SDK (v3.x) & Dart SDK (v3.x)"),
+        make_para("Technology Stack: Flutter SDK (v3.47.2) & Dart SDK (v3.13.2)"),
         make_para("This project implements a multiplatform mobile converter application conforming to clean architecture and Effective Dart conventions. Users can enter numeric values and convert seamlessly across metric and imperial systems for distance and mass units."),
 
-        make_heading("2. Application Output Screenshots", level=2),
-        make_para("Below are the verified live application output runs covering all cases specified in the assignment tasks:"),
+        make_heading("2. Application Output Screenshots (Live APK Execution)", level=2),
+        make_para("The following screenshots were captured directly from the live compiled APK running on an Android mobile device, verifying all conversion capabilities requested in the assignment tasks:"),
 
-        make_para("Case 1: Primary Mockup Verification (100.0 meters are 328.084 feet)", bold=True, color="1F4E79"),
-        make_image_xml("rIdImage1", 1, "Meters to Feet Output Screenshot"),
-        make_para("Figure 1: Flutter Measures Converter Output (100.0 meters are 328.084 feet)", italic=True, color="555555"),
+        make_heading("Test Case 1: Distance Conversion (Miles to Kilometers)", level=3),
+        make_para("Conversion verified: 70.0 miles are 112.654 kilometers"),
+        make_image_xml("rIdImgMiles", 1, "Miles to Kilometers Output Screenshot"),
+        make_para("Figure 1: Live APK execution showing distance conversion from miles to kilometers (70.0 miles are 112.654 kilometers).", italic=True, color="555555"),
 
-        make_para("Case 2: Metric to Imperial Distance (10.0 miles are 16.093 kilometers)", bold=True, color="1F4E79"),
-        make_image_xml("rIdImage2", 2, "Miles to Kilometers Output Screenshot"),
-        make_para("Figure 2: Flutter Measures Converter Output (10.0 miles are 16.093 kilometers)", italic=True, color="555555"),
+        make_heading("Test Case 2: Weight/Mass Conversion (Kilograms to Pounds)", level=3),
+        make_para("Conversion verified: 70.0 kilograms are 154.324 pounds"),
+        make_image_xml("rIdImgKg", 2, "Kilograms to Pounds Output Screenshot"),
+        make_para("Figure 2: Live APK execution showing mass conversion from kilograms to pounds (70.0 kilograms are 154.324 pounds).", italic=True, color="555555"),
 
-        make_para("Case 3: Metric to Imperial Mass (5.0 kilograms are 11.023 pounds)", bold=True, color="1F4E79"),
-        make_image_xml("rIdImage3", 3, "Kilograms to Pounds Output Screenshot"),
-        make_para("Figure 3: Flutter Measures Converter Output (5.0 kilograms are 11.023 pounds)", italic=True, color="555555"),
+        make_heading("Test Case 3: Imperial to Metric Distance (Feet to Meters)", level=3),
+        make_para("Conversion verified: 70.0 feet are 21.336 meters"),
+        make_image_xml("rIdImgFeet", 3, "Feet to Meters Output Screenshot"),
+        make_para("Figure 3: Live APK execution showing distance conversion from feet to meters (70.0 feet are 21.336 meters).", italic=True, color="555555"),
+
+        make_heading("Test Case 4: Unit Selection Dropdown Menu", level=3),
+        make_para("Interactive DropdownButton listing all 8 supported measurement units (meters, kilometers, grams, kilograms, feet, miles, pounds, ounces)."),
+        make_image_xml("rIdImgMenu", 4, "Dropdown Unit Selection Screenshot"),
+        make_para("Figure 4: Live APK execution showing the interactive DropdownButton listing all convertible units.", italic=True, color="555555"),
 
         make_heading("3. Design Decisions & Error Handling", level=2),
         make_para("• Base-Unit Normalization: Each category normalizes measurements to an international base unit (meters for distance, kilograms for mass), ensuring O(1) mathematical accuracy without roundoff accumulation."),
@@ -226,18 +238,20 @@ def create_docx(filename, image1_path, image2_path, image3_path, main_dart_path,
         docx.writestr('_rels/.rels', rels_xml)
         docx.writestr('word/_rels/document.xml.rels', doc_rels_xml)
         docx.writestr('word/document.xml', doc_xml)
-        docx.writestr('word/media/screenshot1.jpg', image1_bytes)
-        docx.writestr('word/media/screenshot2.jpg', image2_bytes)
-        docx.writestr('word/media/screenshot3.jpg', image3_bytes)
+        docx.writestr('word/media/screenshot_miles_to_km.png', img_miles_bytes)
+        docx.writestr('word/media/screenshot_kg_to_pounds.png', img_kg_bytes)
+        docx.writestr('word/media/screenshot_feet_to_meters.png', img_feet_bytes)
+        docx.writestr('word/media/screenshot_dropdown_menu.png', img_menu_bytes)
 
-    print(f"Successfully generated Word document with all screenshots at {filename}")
+    print(f"Successfully generated Word document with live APK screenshots at {filename}")
 
 if __name__ == "__main__":
     create_docx(
         filename="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/Hands_on_Assignment_1_Measures_Converter.docx",
-        image1_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_meters_to_feet.jpg",
-        image2_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_miles_to_km.jpg",
-        image3_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_kg_to_lbs.jpg",
+        img_miles_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_miles_to_km.png",
+        img_kg_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_kg_to_pounds.png",
+        img_feet_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_feet_to_meters.png",
+        img_menu_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/assets/screenshots/screenshot_dropdown_menu.png",
         main_dart_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/lib/main.dart",
         pubspec_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/pubspec.yaml",
         android_manifest_path="/Users/saisahishnuyerraguravagari/.gemini/antigravity/scratch/measures_converter/android/app/src/main/AndroidManifest.xml"
